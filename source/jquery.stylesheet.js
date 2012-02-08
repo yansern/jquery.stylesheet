@@ -19,11 +19,13 @@ $.stylesheet = (function() {
 		var options = {};
 
 		$.extend(
+
 			options,
-			defaultOptions,
+
+			self.defaultOptions,
 
 			($.isPlainObject(url)) ?
-				url ||
+				url :
 				{
 					url: url,
 					attr: attr || {}
@@ -102,11 +104,12 @@ $.stylesheet = (function() {
 
 			} else {
 
+				// @TODO: Use onload/onerror events on browsers that support them.
 				$('<link>')
 					.attr({
 						href: options.url,
 						type: options.type,
-						rel: options.stylesheet,
+						rel: options.rel,
 						media: options.media
 					})
 					.appendTo('head');
@@ -115,11 +118,11 @@ $.stylesheet = (function() {
 			}
 		},
 
-		import: function(options) {
+		_import: function(options) {
 
 			var failed;
 
-			if (self.currentGroup===undefined)
+			if (self.currentGroup===undefined) {
 
 				var group;
 
@@ -161,7 +164,7 @@ $.stylesheet = (function() {
 
 				self.currentGroup = undefined;
 
-				return insertIE(options);
+				return self._import(options);
 			}
 
 			return true;
@@ -171,4 +174,4 @@ $.stylesheet = (function() {
 
 	return self;
 
-});
+})();
