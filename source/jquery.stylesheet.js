@@ -34,34 +34,46 @@ $.stylesheet = (function() {
 			return false;
 		}
 
-		return self.insert(options);
+		return self.inject(options);
 	};
 
 	var IE_MAX_STYLE = 31,
 		IE_MAX_IMPORT = 31,
+
+		// @TODO: Plain text stylesheet insertion.
 		IE_MAX_RULE = 4095;
 
 	$.extend(self, {
 
 		defaultOptions: {
-			attr: {
-				type: "text/css",
-				rel: "stylesheet",
-				media: "all"
-			},
 
-			// @TODO: bleedImports & bleedRules
+			type: "text/css",
+
+			rel: "stylesheet",
+
+			media: "all",
+
+			// Force link injection, ignores IE workarounds, overrides XHR value.
+			forceInject: false,
+
+			// @TODO: XHR loading.
+			xhr: false,
+
+			// @TODO: bleedImports.
 			bleedImports: false,
+
+			// @TODO: bleedRules.
 			bleedRules: false
 		},
 
 		setup: function(options) {
+
 			$.extend(self.defaultOptions, options);
 		},
 
 		availability: function() {
 
-			// @TODO: Also calculate bleedImports
+			// @TODO: Also calculate bleedImports.
 			var stat = {},
 				links = $('link[rel*="stylesheet"]')
 				styles = $('style');
@@ -77,23 +89,33 @@ $.stylesheet = (function() {
 			return stat;
 		},
 
-		insert: function(options) {
+		// "insert" method reserved for plain text stylesheet insertion.
+		insert: function() {
+			return;
+		},
 
-			if ($.browser.msie) {
+		inject: function(options) {
 
-				return insertIE(options);
+			if ($.browser.msie && !options.forceInject) {
+
+				return self.import(options);
 
 			} else {
 
 				$('<link>')
-					.attr(options.attr)
+					.attr({
+						href: options.url,
+						type: options.type,
+						rel: options.stylesheet,
+						media: options.media
+					})
 					.appendTo('head');
 
 				return true;
 			}
 		},
 
-		insertIE: function(options) {
+		import: function(options) {
 
 			var failed;
 
